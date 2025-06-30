@@ -1,4 +1,3 @@
-Perfect! Below is your **final and complete `README.md`** with all the information and improvements you requested:
 ![BruteMaster Banner](banner.png)
 
 ---
@@ -10,7 +9,7 @@ Perfect! Below is your **final and complete `README.md`** with all the informati
 
 **BruteMaster** is a modular Bash-based Brute-Force Framework designed for educational and ethical hacking purposes.  
 Inspired by tools like Hydra and Metasploit, it provides an extensible and interactive terminal interface for brute-forcing different services.
-![BruteMaster Banner](banner.png)
+
 
 
 > 💡 Created by **CrazyCat**  
