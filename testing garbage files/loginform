@@ -1,0 +1,2 @@
+/brutemaster.sh http_login -u "http://localhost/login.php" -U "test" -w "/home/kali/Desktop/BruteMaster/testing garbage files/wordlist.txt" --verbose
+

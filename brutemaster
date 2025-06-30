@@ -1,0 +1,142 @@
+#!/bin/bash
+ source ./banner.sh
+ banner
+if [[ "$1" == "--help" || "$1" == "-h" ]]; then
+  echo -e "\033[1;36mBruteMaster - Bash-based Brute-Force Framework\033[0m"
+  echo
+  echo -e "\033[1mUSAGE:\033[0m"
+  echo "  ./brutemaster.sh                  Start interactive mode"
+  echo "  ./brutemaster.sh <module> [args]  Run a module directly (advanced)"
+  echo
+  echo -e "\033[1mEXAMPLES:\033[0m"
+  echo "  ./brutemaster.sh http_login -u http://target/login -U admin -w /path/to/wordlist.txt --verbose"
+  echo "  ./brutemaster.sh pdf_bruteforce -f protected.pdf -w /path/to/wordlist.txt"
+  echo
+  echo -e "\033[1mAVAILABLE MODULES:\033[0m"
+  echo "  http_login        Brute-force web login forms"
+  echo "  ssh               Brute-force SSH credentials"
+  echo "  ftp_login         Brute-force FTP login"
+  echo "  pdf_bruteforce    Crack encrypted PDF files"
+  echo
+  echo -e "\033[1mOPTIONS:\033[0m"
+  echo "  -u        URL (http_login)"
+  echo "  -U        Username (http_login)"
+  echo "  -w        Wordlist file"
+  echo "  -f        PDF file (pdf_bruteforce)"
+  echo "  -m        Mode (text/code/length/all)"
+  echo "  --verbose Enable verbose output"
+  echo "  --threads Number of threads (http_login)"
+  echo
+  echo -e "\033[1;34mNote:\033[0m Run './brutemaster.sh' with no arguments for full interactive mode."
+  exit 0
+fi
+
+if [[ "$1" == "http_login" ]]; then
+  shift
+  echo "[*] Running http_login directly with args: $*"
+  python3 modules/http_login.py "$@"
+  exit 0
+
+elif [[ "$1" == "pdf_bruteforce" ]]; then
+  shift
+  echo "[*] Running pdf_bruteforce directly with args: $*"
+  python3 modules/pdf_bruteforce.py "$@"
+  exit 0
+
+elif [[ "$1" == "ssh" ]]; then
+  shift
+  echo "[*] Running ssh module directly with args: $*"
+  python3 modules/ssh_bruteforce.py "$@"
+  exit 0
+
+# Add other modules here...
+
+else
+  # Start interactive interface
+  source ./banner.sh
+  source ./core/cmd_http.sh
+  # other core files...
+  banner
+  # continue normal loop...
+fi
+
+current_module=""
+declare -A module_options
+
+show_modules() {
+  echo -e "\n+------------------+----------------------------+"
+  echo "| Module Name      | Description                |"
+  echo "+------------------+----------------------------+"
+  echo "| http_login       | Brute-force web login forms|"
+  echo "| ssh              | Brute-force SSH credentials|"
+  echo "| ftp_login        | Brute-force FTP login      |"
+  echo "| pdf_bruteforce   | Crack encrypted PDF files  |"
+  echo "+------------------+----------------------------+"
+  echo -e "\nType 'use <module_name>' to select a module."
+}
+
+set_option() {
+  key=$1
+  value=$2
+  declare -g "$key=$value"   # make it global for sourced scripts
+  echo "Set $key to $value"
+}
+
+# ---- Interface Loop ---- #
+while true; do
+  echo -n "BruteMaster> "
+  read -r input
+
+  cmd=$(echo "$input" | awk '{print $1}')
+  args=$(echo "$input" | cut -d' ' -f2-)
+
+  case "$cmd" in
+    use)
+      current_module=$args
+      echo "[+] Module set to '$current_module'"
+
+      # Reset options
+      module_options=()
+
+      # Try to source module-specific handler
+      handler="./core/cmd_${current_module}.sh"
+      if [[ -f "$handler" ]]; then
+        source "$handler"
+      else
+        echo "[!] Handler file not found: $handler"
+      fi
+      ;;
+    
+    show)
+      if [[ "$args" == "modules" ]]; then
+        show_modules
+      elif [[ "$args" == "options" ]]; then
+        show_options
+      else
+        echo "Unknown show command: $args"
+      fi
+      ;;
+    
+    set)
+      key=$(echo $args | awk '{print $1}')
+      value=$(echo $args | cut -d' ' -f2-)
+      set_option "$key" "$value"
+      ;;
+    
+    run)
+      if [[ -n "$current_module" ]]; then
+        run_module
+      else
+        echo "[!] No module selected. Use 'use <module>' first."
+      fi
+      ;;
+    
+    exit)
+      break
+      ;;
+    
+    *)
+      echo "Unknown command: $cmd"
+      ;;
+  esac
+done
