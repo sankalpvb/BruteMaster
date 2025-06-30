@@ -2,7 +2,7 @@
 
 ---
 
-### ✅ Final `README.md`
+
 
 ````markdown
 # 🚀 BruteMaster
@@ -160,9 +160,4 @@ Do **NOT** use it on targets you do not own or have explicit permission to test.
 
 MIT License
 
-```
-
----
-
-Let me know if you want me to create the final `setup.sh` file next or include screenshots or badges (like GitHub stars/downloads).
 ```
