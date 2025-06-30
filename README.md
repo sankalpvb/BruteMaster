@@ -11,6 +11,7 @@ Perfect! Below is your **final and complete `README.md`** with all the informati
 Inspired by tools like Hydra and Metasploit, it provides an extensible and interactive terminal interface for brute-forcing different services.
 ![BruteMaster Banner](banner.png)
 
+
 > 💡 Created by **CrazyCat**  
 > 📚 Learn. Build. Break. Secure.
 
