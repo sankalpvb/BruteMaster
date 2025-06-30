@@ -1,10 +1,14 @@
-Here is the complete and properly formatted `README.md` content that you can **copy-paste directly** into your GitHub repository:
+Perfect! Below is your **final and complete `README.md`** with all the information and improvements you requested:
+
+---
+
+### ✅ Final `README.md`
 
 ````markdown
 # 🚀 BruteMaster
 
-**BruteMaster** is a modular **Bash-based Brute-Force Framework** designed for **educational and ethical hacking** purposes.  
-Inspired by tools like **Hydra** and **Metasploit**, it provides an extensible and interactive terminal interface for brute-forcing different services.
+**BruteMaster** is a modular Bash-based Brute-Force Framework designed for educational and ethical hacking purposes.  
+Inspired by tools like Hydra and Metasploit, it provides an extensible and interactive terminal interface for brute-forcing different services.
 
 > 💡 Created by **CrazyCat**  
 > 📚 Learn. Build. Break. Secure.
@@ -13,7 +17,7 @@ Inspired by tools like **Hydra** and **Metasploit**, it provides an extensible a
 
 ## 🔰 Pre-Requisites (Install Before Cloning)
 
-Make sure the following packages are installed:
+Ensure your system has the following installed:
 
 ```bash
 sudo apt update
@@ -46,16 +50,14 @@ chmod +x brutemaster.sh
 ./brutemaster.sh
 ```
 
----
-
-## 🌍 Install as Global Command (Optional)
+### 🌍 Install as Global Command (Optional)
 
 ```bash
 chmod +x setup.sh
 sudo ./setup.sh
 ```
 
-Now you can run BruteMaster from anywhere:
+Now you can simply run:
 
 ```bash
 brutemaster
@@ -67,7 +69,7 @@ brutemaster
 
 Once inside the BruteMaster terminal:
 
-```text
+```
 use <module_name>        # Select a module (http_login, ssh, ftp_login, pdf_bruteforce)
 set <option> <value>     # Configure module options
 show options             # View required/optional options
@@ -79,7 +81,7 @@ exit                     # Quit BruteMaster
 
 ## ⚙️ Expert CLI Usage
 
-Run a module directly without using the interface:
+Run a module directly without interface:
 
 ```bash
 python3 modules/http_login.py -u "http://localhost/login.php" -U "admin" -w "/path/to/wordlist.txt" --verbose
@@ -98,7 +100,7 @@ python3 modules/http_login.py -u "http://localhost/login.php" -U "admin" -w "/pa
 
 ---
 
-## 🧪 Example (Basic Usage)
+## 🧪 Example (Basic)
 
 ```bash
 use http_login
@@ -118,11 +120,11 @@ run
 
 If you see this error while running `pip` on Kali Linux:
 
-```
+```text
 error: externally-managed-environment
 ```
 
-➡️ **Use a virtual environment**:
+➡️ Use a virtual environment:
 
 ```bash
 python3 -m venv venv
@@ -130,7 +132,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-➡️ Or bypass it at your own risk:
+Or bypass at your own risk:
 
 ```bash
 pip install --break-system-packages -r requirements.txt
@@ -138,22 +140,27 @@ pip install --break-system-packages -r requirements.txt
 
 ---
 
-## 👨‍💻 Author
+## 🧑‍💻 Author
 
-**Sankalp Bhosale** ([@sankalpvb](https://github.com/sankalpvb))
-
-Inspired by real-world **Red Teaming** and **Ethical Hacking** techniques.
+* **Sankalp Bhosale** ([@sankalpvb](https://github.com/sankalpvb))
+* Inspired by real-world red teaming and ethical hacking techniques.
 
 ---
 
 ## ⚠️ Legal Disclaimer
 
-> This tool is **for educational purposes only**.
-> Do **NOT** use it on targets you do not own or do not have **explicit permission** to test.
+This tool is for **educational and authorized security testing only**.
+Do **NOT** use it on targets you do not own or have explicit permission to test.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License**.
+MIT License
+
+```
+
+---
+
+Let me know if you want me to create the final `setup.sh` file next or include screenshots or badges (like GitHub stars/downloads).
 ```
