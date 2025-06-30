@@ -34,7 +34,8 @@ sudo apt install python3 python3-pip python3-venv -y
 
 ### 1️⃣ Clone the Repository
 
-```bash
+```
+bash
 git clone https://github.com/sankalpvb/BruteMaster.git
 cd BruteMaster
 ```
