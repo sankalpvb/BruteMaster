@@ -10,7 +10,7 @@ echo -e "${CYAN}[*] Welcome to BruteMaster Installer${NC}"
 echo
 
 # Ask for GitHub URL
-read -p "Enter the GitHub Repository URL (e.g., https://github.com/yourname/BruteMaster): " repo_url
+read -p "Enter the GitHub Repository URL (e.g., https://github.com/sankalpvb/BruteMaster): " repo_url
 
 # Validate URL
 if [[ -z "$repo_url" ]]; then
