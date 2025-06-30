@@ -23,7 +23,7 @@ and interactive terminal interface for brute-forcing different services.
 
 Ensure your system has the following installed:
 
-````
+---
 
 bash
 sudo apt update
