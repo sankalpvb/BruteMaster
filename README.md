@@ -1,4 +1,5 @@
 Perfect! Below is your **final and complete `README.md`** with all the information and improvements you requested:
+![BruteMaster Banner](banner.png)
 
 ---
 
