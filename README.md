@@ -7,10 +7,10 @@
 ````markdown
 # 🚀 BruteMaster
 
-BruteMaster is a modular Bash-based Brute-Force Framework designed for educational and ethical
-hacking purposes.  
-Inspired by tools like Hydra and Metasploit, it provides an extensible and interactive terminal
-interface for brute-forcing different services.
+BruteMaster is a modular Bash-based Brute-Force Framework designed for
+educational and ethical hacking purposes.  
+Inspired by tools like Hydra and Metasploit, it provides an extensible
+and interactive terminal interface for brute-forcing different services.
 
 
 
