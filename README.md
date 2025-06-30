@@ -156,9 +156,4 @@ Inspired by real-world **Red Teaming** and **Ethical Hacking** techniques.
 ## 📄 License
 
 This project is licensed under the **MIT License**.
-
-```
-
-✅ **Ready to paste directly into `README.md`** on GitHub!  
-Let me know if you also want a `requirements.txt` or `setup.sh` template.
 ```
