@@ -13,7 +13,7 @@ BruteMaster is a terminal-based brute-force automation tool built in Bash, with 
 ## 📦 Installation
 
 ```bash
-git clone https://github.com/yourusername/BruteMaster.git
+git clone https://github.com/sankalpvb/BruteMaster.git
 cd BruteMaster
 chmod +x brutemaster.sh
 pip install -r requirements.txt
