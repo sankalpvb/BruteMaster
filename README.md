@@ -1,16 +1,3 @@
-Here's your **updated `README.md`** reflecting your latest changes, especially:
-
-* New module (`pdf`)
-* Unified virtual environment setup (`.venv`)
-* Automated activation inside `brutemaster.sh`
-* Cleanup of old naming (`pdf_bruteforce → pdf`)
-* Improved install section using `setup_env.sh`
-
----
-
-## ✅ Updated `README.md`
-
-````markdown
 ![BruteMaster Banner](banner.png)
 
 ---
