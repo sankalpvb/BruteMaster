@@ -1,29 +1,35 @@
+Here's your **updated `README.md`** reflecting your latest changes, especially:
+
+* New module (`pdf`)
+* Unified virtual environment setup (`.venv`)
+* Automated activation inside `brutemaster.sh`
+* Cleanup of old naming (`pdf_bruteforce → pdf`)
+* Improved install section using `setup_env.sh`
+
+---
+
+## ✅ Updated `README.md`
+
+````markdown
 ![BruteMaster Banner](banner.png)
 
 ---
 
-
-
-````markdown
 # 🚀 BruteMaster
 
-BruteMaster is a modular Bash-based Brute-Force Framework designed for
-educational and ethical hacking purposes.  
-Inspired by tools like Hydra and Metasploit, it provides an extensible
-and interactive terminal interface for brute-forcing different services.
-
-
+**BruteMaster** is a modular Bash-based Brute-Force Framework designed for  
+**educational and ethical hacking purposes**.  
+Inspired by tools like Hydra and Metasploit, it provides an **interactive terminal interface** and supports modular attacks like HTTP, SSH, FTP, and PDF password brute-forcing.
 
 > 💡 Created by **CrazyCat**  
 > 📚 Learn. Build. Break. Secure.
 
 ---
 
-## 🔰 Pre-Requisites (Install Before Cloning)
+## 🔰 Pre-Requisites
 
-Ensure your system has the following installed:
+Ensure your system has:
 
-````
 ```bash
 sudo apt update
 sudo apt install python3 python3-pip python3-venv -y
@@ -31,114 +37,111 @@ sudo apt install python3 python3-pip python3-venv -y
 
 ---
 
-## 📦 Installation Steps
+## ⚙️ Setup & Installation
 
-### 1️⃣ Clone the Repository
+### ✅ Method 1: One-Click Setup (Recommended)
 
-```
-bash
+```bash
 git clone https://github.com/sankalpvb/BruteMaster.git
 cd BruteMaster
+chmod +x setup_env.sh
+./setup_env.sh
 ```
 
-### 2️⃣ Setup Python Virtual Environment (Recommended)
+This will:
+
+* Create `.venv` (Python virtual environment)
+* Install all required Python packages
+* Launch BruteMaster interface
+
+---
+
+### ⚙️ Method 2: Manual Setup (Advanced)
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+git clone https://github.com/sankalpvb/BruteMaster.git
+cd BruteMaster
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
-```
-
-### 3️⃣ Make Executable and Run
-
-```bash
 chmod +x brutemaster.sh
 ./brutemaster.sh
 ```
 
-### 🌍 Install as Global Command (Optional)
-
-```bash
-chmod +x setup.sh
-sudo ./setup.sh
-```
-
-Now you can simply run:
-
-```bash
-brutemaster
-```
+> ℹ️ `brutemaster.sh` auto-activates `.venv` each time.
 
 ---
 
-## 🎮 Interface Usage
-
-Once inside the BruteMaster terminal:
-
-```
-use <module_name>        # Select a module (http_login, ssh, ftp_login, pdf_bruteforce)
-set <option> <value>     # Configure module options
-show options             # View required/optional options
-run                      # Start the attack
-exit                     # Quit BruteMaster
-```
-
----
-
-## ⚙️ Expert CLI Usage
-
-Run a module directly without interface:
+## 🎮 Terminal Interface Commands
 
 ```bash
-python3 modules/http_login.py -u "http://localhost/login.php" -U "admin" -w "/path/to/wordlist.txt" --verbose
+use <module_name>        # Select a module (http, ssh, ftp, pdf)
+set <option> <value>     # Set options (e.g., url, username, wordlist)
+show options             # Show current module options
+show modules             # List all available modules
+run                      # Run selected module
+exit                     # Exit BruteMaster
 ```
 
 ---
 
 ## 🧰 Available Modules
 
-| Module Name     | Description                 |
-| --------------- | --------------------------- |
-| http\_login     | Brute-force web login forms |
-| ssh             | Brute-force SSH credentials |
-| ftp\_login      | Brute-force FTP login       |
-| pdf\_bruteforce | Crack encrypted PDF files   |
+| Module Name | Description                   |
+| ----------- | ----------------------------- |
+| http        | Brute-force web login forms   |
+| ssh         | Brute-force SSH credentials   |
+| ftp         | Brute-force FTP login         |
+| pdf         | Crack password-protected PDFs |
 
 ---
 
-## 🧪 Example (Basic)
+## 🧪 Example Usage
 
 ```bash
-use http_login
+use http
 set url http://localhost/login.php
 set username admin
 set wordlist /usr/share/wordlists/rockyou.txt
-set threads 5
+set verbose true
+run
+```
+
+```bash
+use pdf
+set file /path/to/encrypted.pdf
+set wordlist /path/to/wordlist.txt
 set verbose true
 run
 ```
 
 ---
 
-## 🛠️ Troubleshooting
-
-### ❌ `externally-managed-environment` Error?
-
-If you see this error while running `pip` on Kali Linux:
-
-```text
-error: externally-managed-environment
-```
-
-➡️ Use a virtual environment:
+## 🛠️ Direct Module CLI Usage (Advanced)
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+# Example: HTTP module
+.venv/bin/python modules/http_login.py -u http://localhost/login.php -U admin -w /usr/share/wordlists/rockyou.txt --verbose
+
+# Example: PDF module
+.venv/bin/python modules/pdf.py -f /path/to/file.pdf -w /path/to/wordlist.txt --verbose
+```
+
+---
+
+## ❗ Troubleshooting
+
+### 🔥 Pip `externally-managed-environment` Error?
+
+Use virtual environment:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Or bypass at your own risk:
+Or bypass with:
 
 ```bash
 pip install --break-system-packages -r requirements.txt
@@ -146,17 +149,18 @@ pip install --break-system-packages -r requirements.txt
 
 ---
 
-## 🧑‍💻 Author
+## 👨‍💻 Author
 
-* **Sankalp Bhosale** ([@sankalpvb](https://github.com/sankalpvb))
-* Inspired by real-world red teaming and ethical hacking techniques.
+**Sankalp Bhosale**
+GitHub: [@sankalpvb](https://github.com/sankalpvb)
+Inspired by real-world **Red Team** tools & offensive security research.
 
 ---
 
 ## ⚠️ Legal Disclaimer
 
-This tool is for **educational and authorized security testing only**.
-Do **NOT** use it on targets you do not own or have explicit permission to test.
+This tool is for **educational purposes and authorized penetration testing only**.
+Do **NOT** use against targets without **explicit written permission**.
 
 ---
 
@@ -164,4 +168,25 @@ Do **NOT** use it on targets you do not own or have explicit permission to test.
 
 MIT License
 
-```
+````
+
+---
+
+### ✅ What You Should Do Next
+
+1. Replace your current `README.md` with the above content.
+2. Run:
+
+```bash
+git add README.md
+git commit -m "Updated README for PDF module, setup_env, and virtualenv"
+git push origin main
+````
+
+Let me know if you also want:
+
+* A `docs/` folder for advanced usage
+* Screenshots or GIFs for demo
+* `README.md` in Hindi/Marathi version for Indian contributors
+
+You're ready to publish this like a professional open-source project 🚀
