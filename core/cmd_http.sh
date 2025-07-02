@@ -49,7 +49,7 @@ run_module() {
   fi
 
   echo -e "${CYAN}[*] Running http_login module...${NC}"
-  cmd="python3 modules/http_login.py -u \"$url\" -U \"$username\" -w \"$wordlist\""
+  cmd=".venv/bin/python modules/http_login.py -u "$url" -U "$username" -w "$wordlist""
   [[ -n "$threads" ]] && cmd+=" --threads \"$threads\""
   [[ -n "$mode" ]] && cmd+=" -m \"$mode\""
   [[ "$verbose" == "true" ]] && cmd+=" --verbose"

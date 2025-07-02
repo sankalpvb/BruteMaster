@@ -1,6 +1,39 @@
 #!/bin/bash
- source ./banner.sh
- banner
+
+# === Show Banner === #
+source ./banner.sh
+banner
+
+# === Python Virtual Environment Setup === #
+if [[ ! -f ".venv/bin/activate" ]]; then
+  echo "[*] Creating virtual environment (.venv)..."
+  python3 -m venv .venv || {
+    echo "[!] Failed to create virtual environment. Make sure 'python3-venv' is installed."
+    exit 1
+  }
+
+  echo "[*] Activating .venv and installing dependencies..."
+  source .venv/bin/activate
+  pip install --upgrade pip
+  pip install requests tabulate pikepdf --break-system-packages
+  pip freeze > requirements.txt
+else
+  if [[ -z "$VIRTUAL_ENV" ]]; then
+    echo "[*] Activating existing .venv..."
+    source .venv/bin/activate
+  fi
+fi
+
+# === Handle Help Command === #
+if [[ "$1" == "--help" || "$1" == "-h" ]]; then
+  echo -e "\033[1;36mBruteMaster - Bash-based Brute-Force Framework\033[0m"
+  echo
+  echo -e "\033[1mUSAGE:\033[0m"
+  echo "  ./brutemaster.sh                 Start interactive mode"
+  echo "  ./brutemaster.sh <module> [args] Run a specific module"
+  exit 0
+fi
+
 if [[ "$1" == "--help" || "$1" == "-h" ]]; then
   echo -e "\033[1;36mBruteMaster - Bash-based Brute-Force Framework\033[0m"
   echo
@@ -16,13 +49,13 @@ if [[ "$1" == "--help" || "$1" == "-h" ]]; then
   echo "  http_login        Brute-force web login forms"
   echo "  ssh               Brute-force SSH credentials"
   echo "  ftp_login         Brute-force FTP login"
-  echo "  pdf_bruteforce    Crack encrypted PDF files"
+  echo "  pdf    	    Crack encrypted PDF files"
   echo
   echo -e "\033[1mOPTIONS:\033[0m"
   echo "  -u        URL (http_login)"
   echo "  -U        Username (http_login)"
   echo "  -w        Wordlist file"
-  echo "  -f        PDF file (pdf_bruteforce)"
+  echo "  -f        PDF file (pdf)"
   echo "  -m        Mode (text/code/length/all)"
   echo "  --verbose Enable verbose output"
   echo "  --threads Number of threads (http_login)"
@@ -37,10 +70,10 @@ if [[ "$1" == "http_login" ]]; then
   python3 modules/http_login.py "$@"
   exit 0
 
-elif [[ "$1" == "pdf_bruteforce" ]]; then
+elif [[ "$1" == "pdf" ]]; then
   shift
-  echo "[*] Running pdf_bruteforce directly with args: $*"
-  python3 modules/pdf_bruteforce.py "$@"
+  echo "[*] Running pdf directly with args: $*"
+  python3 modules/pdf.py "$@"
   exit 0
 
 elif [[ "$1" == "ssh" ]]; then
@@ -70,15 +103,15 @@ show_modules() {
   echo "| http_login       | Brute-force web login forms|"
   echo "| ssh              | Brute-force SSH credentials|"
   echo "| ftp_login        | Brute-force FTP login      |"
-  echo "| pdf_bruteforce   | Crack encrypted PDF files  |"
+  echo "| pdf   | Crack encrypted PDF files  |"
   echo "+------------------+----------------------------+"
   echo -e "\nType 'use <module_name>' to select a module."
 }
 
 set_option() {
-  key=$1
-  value=$2
-  declare -g "$key=$value"   # make it global for sourced scripts
+  key=$(echo "$1" | xargs)       # trim whitespace
+  value=$(echo "$2" | xargs)     # trim whitespace
+  declare -g "$key=$value"
   echo "Set $key to $value"
 }
 
@@ -117,9 +150,9 @@ while true; do
       fi
       ;;
     
-    set)
-      key=$(echo $args | awk '{print $1}')
-      value=$(echo $args | cut -d' ' -f2-)
+     set)
+      key=$(echo "$args" | awk '{print $1}')
+      value=$(echo "$args" | cut -d' ' -f2-)
       set_option "$key" "$value"
       ;;
     

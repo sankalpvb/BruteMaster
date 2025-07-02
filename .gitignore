@@ -1,0 +1,7 @@
+# Ignore virtualenv
+.venv/
+__pycache__/
+*.log
+
+# Ignore test junk
+testing_garbage_files/
