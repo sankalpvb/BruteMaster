@@ -1,3 +1,8 @@
+Here's your updated `README.md` with **today’s features** added — including the **logging system**, enhanced **interactive options**, and a short **log usage guide** in the right sections:
+
+---
+
+````markdown
 ![BruteMaster Banner](banner.png)
 
 ---
@@ -66,6 +71,9 @@ use <module_name>        # Select a module (http, ssh, ftp, pdf)
 set <option> <value>     # Set options (e.g., url, username, wordlist)
 show options             # Show current module options
 show modules             # List all available modules
+startlog                 # Enable logging for session
+stoplog                  # Disable logging
+logs                     # View saved log sessions
 run                      # Run selected module
 exit                     # Exit BruteMaster
 ```
@@ -91,26 +99,38 @@ set url http://localhost/login.php
 set username admin
 set wordlist /usr/share/wordlists/rockyou.txt
 set verbose true
+startlog
 run
+stoplog
 ```
 
 ```bash
 use pdf
 set file /path/to/encrypted.pdf
 set wordlist /path/to/wordlist.txt
-set verbose true
 run
 ```
+
+---
+
+## 📜 Logging Usage
+
+* `startlog`: Enables logging. Output is saved inside `logs/<module>/session_<timestamp>.log`
+* `stoplog`: Disables logging.
+* `logs`: Lists all saved log files.
+* Use `tail -f logs/...` to follow logs in real-time.
+
+> 💡 **Note:** Logs include detailed module output and are organized per module.
 
 ---
 
 ## 🛠️ Direct Module CLI Usage (Advanced)
 
 ```bash
-# Example: HTTP module
+# HTTP module
 .venv/bin/python modules/http_login.py -u http://localhost/login.php -U admin -w /usr/share/wordlists/rockyou.txt --verbose
 
-# Example: PDF module
+# PDF module
 .venv/bin/python modules/pdf.py -f /path/to/file.pdf -w /path/to/wordlist.txt --verbose
 ```
 
@@ -154,3 +174,6 @@ Do **NOT** use against targets without **explicit written permission**.
 ## 📄 License
 
 MIT License
+
+```
+
