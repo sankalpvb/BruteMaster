@@ -1,8 +1,3 @@
-Here's your updated `README.md` with **today’s features** added — including the **logging system**, enhanced **interactive options**, and a short **log usage guide** in the right sections:
-
----
-
-````markdown
 ![BruteMaster Banner](banner.png)
 
 ---
