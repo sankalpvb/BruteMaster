@@ -1,175 +1,235 @@
 #!/bin/bash
 
-# === Show Banner === #
+# === Show Banner and Log Handler === #
+source core/logs_handler.sh
+source core/banner_template.txt
 source ./banner.sh
 banner
+LOGGING_ENABLED=false
+
+# === Fallback Show Options === #
+show_options() {
+  if [[ "${#module_options[@]}" -eq 0 ]]; then
+    echo "[ℹ️] No options set."
+  else
+    echo "[🛠️] Current options:"
+    for key in "${!module_options[@]}"; do
+      echo "  $key => ${module_options[$key]}"
+    done
+  fi
+}
+
+# === Run Module Function === #
+rrun_module() {
+    module_name="$1"
+    shift
+    module_args=("$@")
+    script_path="modules/$module_name.py"
+
+    if [[ ! -f "$script_path" ]]; then
+        echo "[❌] Module not found: $script_path"
+        return
+    fi
+
+    echo "[🚀] Running $module_name..."
+
+    if [[ "$LOGGING_ENABLED" == true ]]; then
+        log_dir="logs/$module_name"
+        mkdir -p "$log_dir"
+        timestamp=$(date +%Y%m%d_%H%M%S)
+        TMP_LOG="$log_dir/temp_$timestamp.log"
+        LOG_FILE="$log_dir/session_$timestamp.log"
+
+        echo "[📡] Logging to: $LOG_FILE"
+
+        # ✅ Step 1: Copy banner template
+        if [[ -f "core/banner_template.txt" ]]; then
+            cp "core/banner_template.txt" "$TMP_LOG"
+        else
+            echo "[!] Missing banner_template.txt, skipping banner." > "$TMP_LOG"
+        fi
+
+        # ✅ Step 2: Separator
+        echo -e "\n--- MODULE OUTPUT STARTS ---\n" >> "$TMP_LOG"
+
+        # ✅ Step 3: Append tool output
+        python3 "$script_path" "${module_args[@]}" >> "$TMP_LOG" 2>&1
+
+        # ✅ Step 4: Rename to final log
+        mv "$TMP_LOG" "$LOG_FILE"
+    else
+        python3 "$script_path" "${module_args[@]}"
+    fi
+}
+
+# === Direct Module Execution === #
+if [[ "$1" == "http_login" || "$1" == "pdf" || "$1" == "ssh" ]]; then
+    module="$1"
+    shift
+    run_module "$module" "$@"
+    exit 0
+elif [[ "$1" == "logs" ]]; then
+    logs_menu
+    exit 0
+elif [[ "$1" == "help" || "$1" == "--help" || "$1" == "-h" ]]; then
+    echo -e "\033[1;36mBruteMaster - Bash-based Brute-Force Framework\033[0m"
+    echo
+    echo -e "\033[1mUSAGE:\033[0m"
+    echo "  ./brutemaster.sh                 Start interactive mode"
+    echo "  ./brutemaster.sh <module> [...]  Run a module (e.g., http_login)"
+    echo "  ./brutemaster.sh logs            Show logs menu"
+    echo
+    echo -e "\033[1mMODULES:\033[0m"
+    echo "  http_login   Brute-force web login forms"
+    echo "  ssh          Brute-force SSH credentials"
+    echo "  ftp_login    Brute-force FTP login (optional)"
+    echo "  pdf          Crack encrypted PDF files"
+    echo
+    echo -e "\033[1mOPTIONS:\033[0m"
+    echo "  -u        URL (http_login)"
+    echo "  -U        Username (http_login)"
+    echo "  -w        Wordlist file"
+    echo "  -f        PDF file (pdf)"
+    echo "  -m        Mode (text/code/length/all)"
+    echo "  --verbose Enable verbose output"
+    echo "  --threads Number of threads"
+    echo
+    echo -e "\033[1;34mNote:\033[0m Run './brutemaster.sh' with no arguments for interactive mode."
+    exit 0
+fi
 
 # === Python Virtual Environment Setup === #
 if [[ ! -f ".venv/bin/activate" ]]; then
-  echo "[*] Creating virtual environment (.venv)..."
-  python3 -m venv .venv || {
-    echo "[!] Failed to create virtual environment. Make sure 'python3-venv' is installed."
-    exit 1
-  }
+    echo "[*] Creating virtual environment (.venv)..."
+    python3 -m venv .venv || {
+        echo "[!] Failed to create virtual environment. Install 'python3-venv'."
+        exit 1
+    }
 
-  echo "[*] Activating .venv and installing dependencies..."
-  source .venv/bin/activate
-  pip install --upgrade pip
-  pip install requests tabulate pikepdf --break-system-packages
-  pip freeze > requirements.txt
-else
-  if [[ -z "$VIRTUAL_ENV" ]]; then
-    echo "[*] Activating existing .venv..."
+    echo "[*] Installing dependencies..."
     source .venv/bin/activate
-  fi
-fi
-
-# === Handle Help Command === #
-if [[ "$1" == "--help" || "$1" == "-h" ]]; then
-  echo -e "\033[1;36mBruteMaster - Bash-based Brute-Force Framework\033[0m"
-  echo
-  echo -e "\033[1mUSAGE:\033[0m"
-  echo "  ./brutemaster.sh                 Start interactive mode"
-  echo "  ./brutemaster.sh <module> [args] Run a specific module"
-  exit 0
-fi
-
-if [[ "$1" == "--help" || "$1" == "-h" ]]; then
-  echo -e "\033[1;36mBruteMaster - Bash-based Brute-Force Framework\033[0m"
-  echo
-  echo -e "\033[1mUSAGE:\033[0m"
-  echo "  ./brutemaster.sh                  Start interactive mode"
-  echo "  ./brutemaster.sh <module> [args]  Run a module directly (advanced)"
-  echo
-  echo -e "\033[1mEXAMPLES:\033[0m"
-  echo "  ./brutemaster.sh http_login -u http://target/login -U admin -w /path/to/wordlist.txt --verbose"
-  echo "  ./brutemaster.sh pdf_bruteforce -f protected.pdf -w /path/to/wordlist.txt"
-  echo
-  echo -e "\033[1mAVAILABLE MODULES:\033[0m"
-  echo "  http_login        Brute-force web login forms"
-  echo "  ssh               Brute-force SSH credentials"
-  echo "  ftp_login         Brute-force FTP login"
-  echo "  pdf    	    Crack encrypted PDF files"
-  echo
-  echo -e "\033[1mOPTIONS:\033[0m"
-  echo "  -u        URL (http_login)"
-  echo "  -U        Username (http_login)"
-  echo "  -w        Wordlist file"
-  echo "  -f        PDF file (pdf)"
-  echo "  -m        Mode (text/code/length/all)"
-  echo "  --verbose Enable verbose output"
-  echo "  --threads Number of threads (http_login)"
-  echo
-  echo -e "\033[1;34mNote:\033[0m Run './brutemaster.sh' with no arguments for full interactive mode."
-  exit 0
-fi
-
-if [[ "$1" == "http_login" ]]; then
-  shift
-  echo "[*] Running http_login directly with args: $*"
-  python3 modules/http_login.py "$@"
-  exit 0
-
-elif [[ "$1" == "pdf" ]]; then
-  shift
-  echo "[*] Running pdf directly with args: $*"
-  python3 modules/pdf.py "$@"
-  exit 0
-
-elif [[ "$1" == "ssh" ]]; then
-  shift
-  echo "[*] Running ssh module directly with args: $*"
-  python3 modules/ssh_bruteforce.py "$@"
-  exit 0
-
-# Add other modules here...
-
+    pip install --upgrade pip
+    pip install requests tabulate pikepdf --break-system-packages
+    pip freeze > requirements.txt
 else
-  # Start interactive interface
-  source ./banner.sh
-  source ./core/cmd_http.sh
-  # other core files...
-  banner
-  # continue normal loop...
+    if [[ -z "$VIRTUAL_ENV" ]]; then
+        echo "[*] Activating existing .venv..."
+        source .venv/bin/activate
+    fi
 fi
+
+# === Interactive Mode === #
 
 current_module=""
 declare -A module_options
 
 show_modules() {
-  echo -e "\n+------------------+----------------------------+"
-  echo "| Module Name      | Description                |"
-  echo "+------------------+----------------------------+"
-  echo "| http_login       | Brute-force web login forms|"
-  echo "| ssh              | Brute-force SSH credentials|"
-  echo "| ftp_login        | Brute-force FTP login      |"
-  echo "| pdf   | Crack encrypted PDF files  |"
-  echo "+------------------+----------------------------+"
-  echo -e "\nType 'use <module_name>' to select a module."
+    echo -e "\n+------------------+----------------------------+"
+    echo "| Module Name      | Description                |"
+    echo "+------------------+----------------------------+"
+    echo "| http_login       | Brute-force web login forms|"
+    echo "| ssh              | Brute-force SSH credentials|"
+    echo "| ftp_login        | Brute-force FTP login      |"
+    echo "| pdf              | Crack encrypted PDF files  |"
+    echo "+------------------+----------------------------+"
+    echo -e "\nType 'use <module_name>' to select a module."
 }
 
 set_option() {
-  key=$(echo "$1" | xargs)       # trim whitespace
-  value=$(echo "$2" | xargs)     # trim whitespace
-  declare -g "$key=$value"
+  key=$(echo "$1" | xargs)
+  value=$(echo "$2" | xargs)
+  module_options["$key"]="$value"
   echo "Set $key to $value"
 }
 
-# ---- Interface Loop ---- #
+# === Main CLI Loop === #
 while true; do
   echo -n "BruteMaster> "
   read -r input
+
+  # ✅ Ensure logs_menu is available
+  if ! declare -f logs_menu >/dev/null; then
+    source core/logs_handler.sh
+  fi
 
   cmd=$(echo "$input" | awk '{print $1}')
   args=$(echo "$input" | cut -d' ' -f2-)
 
   case "$cmd" in
     use)
-      current_module=$args
-      echo "[+] Module set to '$current_module'"
+        current_module=$args
+        echo "[+] Module set to '$current_module'"
+        module_options=()
 
-      # Reset options
-      module_options=()
+        handler="./core/cmd_${current_module}.sh"
+        if [[ -f "$handler" ]]; then
+            source "$handler"
+        else
+            echo "[!] Handler not found: $handler"
+        fi
+        ;;
 
-      # Try to source module-specific handler
-      handler="./core/cmd_${current_module}.sh"
-      if [[ -f "$handler" ]]; then
-        source "$handler"
-      else
-        echo "[!] Handler file not found: $handler"
-      fi
-      ;;
-    
     show)
-      if [[ "$args" == "modules" ]]; then
-        show_modules
-      elif [[ "$args" == "options" ]]; then
-        show_options
-      else
-        echo "Unknown show command: $args"
-      fi
-      ;;
-    
-     set)
-      key=$(echo "$args" | awk '{print $1}')
-      value=$(echo "$args" | cut -d' ' -f2-)
-      set_option "$key" "$value"
-      ;;
-    
+        if [[ "$args" == "modules" ]]; then
+            show_modules
+        elif [[ "$args" == "options" ]]; then
+            if declare -f show_options >/dev/null; then
+                show_options
+            else
+                echo "[ℹ️] No options handler for this module."
+            fi
+        else
+            echo "Unknown show command: $args"
+        fi
+        ;;
+
+    set)
+        key=$(echo "$args" | awk '{print $1}')
+        value=$(echo "$args" | cut -d' ' -f2-)
+        set_option "$key" "$value"
+        ;;
+
     run)
-      if [[ -n "$current_module" ]]; then
-        run_module
-      else
-        echo "[!] No module selected. Use 'use <module>' first."
-      fi
-      ;;
-    
+        if [[ -n "$current_module" ]]; then
+            module_args=()
+            for key in "${!module_options[@]}"; do
+                module_args+=("${module_options[$key]}")
+            done
+            run_module "$current_module" "${module_args[@]}"
+        else
+            echo "[!] No module selected. Use 'use <module>' first."
+        fi
+        ;;
+
+    logs)
+        logs_menu
+        ;;
+
+    startlog)
+        if [[ "$LOGGING_ENABLED" == true ]]; then
+            echo "[⚠️] Logging is already enabled."
+        else
+            LOGGING_ENABLED=true
+            echo "[📡] Logging has been ENABLED."
+        fi
+        ;;
+
+    stoplog)
+        if [[ "$LOGGING_ENABLED" == false ]]; then
+            echo "[ℹ️] Logging is already stopped."
+        else
+            LOGGING_ENABLED=false
+            echo "[🔕] Logging has been DISABLED."
+        fi
+        ;;
+
     exit)
-      break
-      ;;
-    
+        echo "[👋] Exiting BruteMaster. Bye!"
+        break
+        ;;
+
     *)
-      echo "Unknown command: $cmd"
-      ;;
+        echo "Unknown command: $cmd"
+        ;;
   esac
 done
